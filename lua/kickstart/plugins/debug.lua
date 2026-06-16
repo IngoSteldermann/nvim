@@ -22,7 +22,9 @@ return {
     'jay-babu/mason-nvim-dap.nvim',
 
     -- Add your own debuggers here
+    'theHamsta/nvim-dap-virtual-text',
     'leoluz/nvim-dap-go',
+    'mfussenegger/nvim-dap-python',
   },
   keys = function(_, keys)
     local dap = require 'dap'
@@ -49,6 +51,43 @@ return {
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
+
+    dap.adapters.gdb = {
+      type = 'executable',
+      command = 'gdb',
+      args = { '-i', 'dap' },
+    }
+
+  dap.configurations.cpp = {
+    {
+      name = 'Debug OpenFOAM Solver',
+      type = 'gdb',
+      request = 'launch',
+      program = function()
+        -- Ask user for the solver binary, default to simpleFoam
+        -- return vim.fn.input('Path to solver: ', os.getenv('FOAM_APPBIN') .. '/simpleFoam', 'file')
+        local path = '/home/ingo/Git/Zoomy/simulations/OF12/channelflow'
+        return path
+      end,
+      cwd = function()
+        -- Default to current working directory (typically your case dir)
+        -- local path = vim.fn.input('Case directory: ', vim.fn.getcwd(), 'file')
+        local path = '/home/ingo/OpenFOAM/ingo-12/platforms/linux64GccDPInt32Debug/bin/zoomyFoam'
+        return path
+      end,
+      args = function()
+        -- local case = vim.fn.input('Case path (-case): ', vim.fn.getcwd(), 'file')
+        local case = '/home/ingo/Git/Zoomy/simulations/OF12/channelflow'
+        return { '-case', case }
+      end,
+      stopOnEntry = true,
+      runInTerminal = true,   -- important so OpenFOAM prints properly
+    },
+  }
+
+-- If you're editing C files too
+dap.configurations.c = dap.configurations.cpp
+
 
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with

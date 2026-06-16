@@ -14,7 +14,7 @@ return {
   },
   { 'Bilal2453/luvit-meta', lazy = true },
   {
-    -- Main LSP Configuration
+    -- Main LSP Configurationlsp
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
@@ -115,6 +115,32 @@ return {
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+          -- 🔹 Filetype-specific mappings for LaTeX (ltex / vimtex)
+          if vim.bo[event.buf].filetype == "tex" then
+            local map = function(keys, func, desc)
+              vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
+            end
+
+            -- Show diagnostic popup instead of hover
+            map("K", vim.diagnostic.open_float, "Show diagnostics")
+
+            -- Open Telescope diagnostics picker scoped to current buffer
+            map("<leader>ld", function()
+              require("telescope.builtin").diagnostics({ bufnr = event.buf })
+            end, "List diagnostics (LaTeX buffer)")
+
+            -- Open Telescope bibtex picker 
+            map("<leader>lb", function()
+              require("telescope").extensions.bibtex.bibtex({ context = true, })
+            end, "List Bibtex entries")
+
+            -- Optional: enable spellchecking & wrapping in LaTeX
+            vim.opt_local.spell = false
+            vim.opt_local.wrap = true
+            vim.opt_local.linebreak = true
+          end
+
           if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -167,7 +193,7 @@ return {
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -193,6 +219,21 @@ return {
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
+        },
+
+        ltex = {
+         filetypes = { "tex", "bib", "markdown", "org", "text" },
+         settings = {
+           ltex = {
+             language = "en-US",  -- or "en-GB", "de-DE", etc.
+             additionalRules = {
+               enablePickyRules = true,
+             },
+             dictionary = {
+               ["en-US"] = { "Neovim", "LaTeX", "VimTeX" }, -- custom words
+             },
+           },
+         },
         },
       }
 
@@ -225,6 +266,39 @@ return {
         },
       }
     end,
+  },
+
+  {
+    "barreiroleo/ltex_extra.nvim",
+    ft = { "tex", "bib", "markdown", "org", "text" },
+    dependencies = { "neovim/nvim-lspconfig" },
+    config = function()
+    local ltex_extra = require("ltex_extra")
+    vim.api.nvim_create_autocmd("LspAttach", {
+      callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+        --
+        if client and client.name == "ltex" then
+          ltex_extra.setup({
+            load_langs = { "en-US", "de-DE" }, -- adapt to your needs
+            path = ".ltex",                    -- optional per-project dictionaries
+            log_level = "none",
+            -- dictionary = { ["en-US"] = { "Neovim", "LaTeX" } },
+          })
+        end
+
+        -- 🔹 Disable inline diagnostics (virtual text)
+        vim.diagnostic.config({
+          virtual_text = false,
+          signs = true,
+          underline = true,
+          update_in_insert = false,
+          severity_sort = true,
+        })
+      end,
+    })
+  end,
   },
 }
 -- vim: ts=2 sts=2 sw=2 et

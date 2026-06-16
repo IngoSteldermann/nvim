@@ -62,4 +62,10 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- Disable language providers we don't use, so `:checkhealth provider` stays clean.
+--  (python3 + node providers are kept enabled for plugins that need them.)
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+
+
 -- vim: ts=2 sts=2 sw=2 et

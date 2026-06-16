@@ -41,6 +41,15 @@ return {
       local luasnip = require 'luasnip'
       luasnip.config.setup {}
 
+      -- Load your personal snippets from ~/.config/nvim/snippets/
+      require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/snippets" })
+      -- Allow `markdown` filetype to use `tex` snippets
+      luasnip.filetype_extend("markdown", { "tex" })
+
+      -- Allow `quarto` filetype to use `markdown` snippets
+      luasnip.filetype_extend("quarto", { "markdown" })
+      luasnip.filetype_extend("quarto", { "tex" })
+
       cmp.setup {
         snippet = {
           expand = function(args)
@@ -73,6 +82,26 @@ return {
           --['<CR>'] = cmp.mapping.confirm { select = true },
           --['<Tab>'] = cmp.mapping.select_next_item(),
           --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          --
+          -- Smart <Tab> completion / snippet / fallback
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.confirm({ select = true }) -- accept currently selected item
+            elseif luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+          ['<S-Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+              luasnip.jump(-1)
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -112,6 +141,26 @@ return {
           { name = 'path' },
         },
       }
+
+      -- Keymap to quickly edit snippet file for current filetype
+      --
+      vim.keymap.set("n", "<leader>os", function()
+        local ft = vim.bo.filetype
+        local snippet_dir = vim.fn.stdpath("config") .. "/snippets/"
+        local snippet_file = snippet_dir .. ft .. ".lua"
+        vim.fn.mkdir(snippet_dir, "p")
+        vim.cmd("edit " .. snippet_file)
+      end, { desc = "Edit snippet file for current filetype" })
+
+      -- Optional: auto-reload snippets when saving
+      vim.api.nvim_create_autocmd("BufWritePost", {
+        pattern = vim.fn.stdpath("config") .. "/snippets/*.lua",
+        callback = function()
+          require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/snippets" })
+          vim.notify("Snippets reloaded ✨", vim.log.levels.INFO)
+        end,
+      })
+
     end,
   },
 }
