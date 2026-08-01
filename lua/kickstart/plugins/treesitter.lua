@@ -6,10 +6,17 @@ return {
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'cpp', 'python', 'foam', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      -- c, lua, markdown, markdown_inline, query, vim, vimdoc ship as core parsers
+      -- with Neovim itself; installing our own copies here shadows them on the
+      -- runtimepath with a mismatched build and crashes the treesitter highlighter.
+      ensure_installed = { 'bash', 'cpp', 'python', 'foam', 'diff', 'html', 'luadoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
-      ignore_install = { "latex" },
+      -- auto_install ignores ensure_installed and reinstalls any language it
+      -- doesn't own an install-dir copy of the moment its filetype is opened
+      -- (see nvim-treesitter's install.lua is_installed()), so the core
+      -- parsers above must also be excluded here or they silently come back.
+      ignore_install = { "latex", "c", "lua", "markdown", "markdown_inline", "query", "vim", "vimdoc" },
       highlight = {
         enable = true,
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
