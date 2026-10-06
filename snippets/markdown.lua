@@ -1,32 +1,77 @@
-local ls = require("luasnip")
+local ls = require 'luasnip'
 local s = ls.snippet
 local i = ls.insert_node
-local fmt = require("luasnip.extras.fmt").fmt
+local fmt = require('luasnip.extras.fmt').fmt
 
 return {
   -- ==============
   -- ENVIRONMENTS
   -- ==============
   --
+  -- Equation
+  s(
+    'eqn',
+    fmt(
+      [[
+  $$
+  \begin{{aligned}}
+    {}
+  \end{{aligned}}
+  $$ {}
+  ]],
+      {
+        i(1, 'body'),
+        i(2, 'label'),
+      }
+    )
+  ),
   -- Block
-    s("bck", fmt([[
+  s(
+    'bck',
+    fmt(
+      [[
   :::{{block}} {}
     {}
   :::
-    ]], {
-      i(1, "Title"),
-      i(2, "body"),
-    })),
+    ]],
+      {
+        i(1, 'Title'),
+        i(2, 'body'),
+      }
+    )
+  ),
+
+  -- MathBlock
+  s(
+    'mbck',
+    fmt(
+      [[
+  :::{{mathblock}} {}
+    {}
+  :::
+    ]],
+      {
+        i(1, 'Title'),
+        i(2, 'body'),
+      }
+    )
+  ),
 
   -- Margin
-    s("marg", fmt([[
+  s(
+    'marg',
+    fmt(
+      [[
   :::{{mymargin}} {}
     {}
   :::
-    ]], {
-      i(1, "Title"),
-      i(2, "body"),
-    })),
+    ]],
+      {
+        i(1, 'Title'),
+        i(2, 'body'),
+      }
+    )
+  ),
 
   --
   -- ==============
@@ -39,7 +84,10 @@ return {
   -- ==============
   --
   -- Normal figure
-  s("fig", fmt([[
+  s(
+    'fig',
+    fmt(
+      [[
     ::::{{shortcaption}} {}
     :::{{figure}} {}
     :label: fig:{}
@@ -47,14 +95,20 @@ return {
     {}
     :::
     ::::
-    ]], {
-      i(1, "Short caption"),
-      i(2, "./figures/placeholder.svg"), -- figure path
-      i(3, "label"),                     -- label
-      i(4, "Figure caption..."),         -- caption text
-    })),
+    ]],
+      {
+        i(1, 'Short caption'),
+        i(2, './figures/placeholder.svg'), -- figure path
+        i(3, 'label'), -- label
+        i(4, 'Figure caption...'), -- caption text
+      }
+    )
+  ),
   -- Wide figure
-  s("figw", fmt([[
+  s(
+    'figw',
+    fmt(
+      [[
     ::::{{shortcaption}} {}
     :::{{figure}} {}
     :label: fig:{}
@@ -63,14 +117,20 @@ return {
     {}
     :::
     ::::
-    ]], {
-      i(1, "Short caption"),
-      i(2, "./figures/placeholder_large.svg"), -- figure path
-      i(3, "label"),
-      i(4, "Figure caption..."),               -- caption text
-    })),
+    ]],
+      {
+        i(1, 'Short caption'),
+        i(2, './figures/placeholder_large.svg'), -- figure path
+        i(3, 'label'),
+        i(4, 'Figure caption...'), -- caption text
+      }
+    )
+  ),
   -- Margin figure
-  s("figm", fmt([[
+  s(
+    'figm',
+    fmt(
+      [[
   ::::{{tomargin}}
   :::{{figure}} {}
   :label: fig:{}
@@ -79,13 +139,19 @@ return {
   {}
   :::
   ::::
-  ]], {
-    i(1, "./figures/placeholder_side.svg"), -- figure path
-    i(2, "label"),
-    i(3, "Figure caption..."),              -- caption
-  })),
+  ]],
+      {
+        i(1, './figures/placeholder_side.svg'), -- figure path
+        i(2, 'label'),
+        i(3, 'Figure caption...'), -- caption
+      }
+    )
+  ),
   -- QR Code
-  s("qr", fmt([[
+  s(
+    'qr',
+    fmt(
+      [[
   ::::{{linkedmargin}} {}
   :::{{figure}} {}
   :class: margin
@@ -93,17 +159,23 @@ return {
   {}
   :::
   ::::
-  ]], {
-    i(1, "https://google.com"), -- url
-    i(2, "./../qrcodes/qr_example.svg"), -- figure path
-    i(3, "example code..."),              -- caption
-  })),
+  ]],
+      {
+        i(1, 'https://google.com'), -- url
+        i(2, './../qrcodes/qr_example.svg'), -- figure path
+        i(3, 'example code...'), -- caption
+      }
+    )
+  ),
   -- ==============
   -- TABLES
   -- ==============
   --
   -- Table snippet
-    s("tab", fmt([[
+  s(
+    'tab',
+    fmt(
+      [[
     ::::{{shortcaption}} {}
       :::{{list-table}} {}
         :header-rows: {}
@@ -113,19 +185,20 @@ return {
           - {}
       :::
     ::::
-    ]], {
-      i(1, "Short caption"),
-      i(2, "Table title"),
-      i(3, "1"),           -- header-rows
-      i(4, "default"),  -- class
-      i(5, "example"),     -- label
-      i(6, "entry(0,0)"), -- row 0, entry 0
-      i(7, "entry(0,1)"), -- row 0, entry 1
-    })),
+    ]],
+      {
+        i(1, 'Short caption'),
+        i(2, 'Table title'),
+        i(3, '1'), -- header-rows
+        i(4, 'default'), -- class
+        i(5, 'example'), -- label
+        i(6, 'entry(0,0)'), -- row 0, entry 0
+        i(7, 'entry(0,1)'), -- row 0, entry 1
+      }
+    )
+  ),
   -- ==============
   -- MISC
   -- ==============
   -- brackets
-
 }
-
