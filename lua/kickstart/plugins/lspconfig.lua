@@ -221,6 +221,8 @@ return {
           },
         },
 
+        texlab = {},
+
         ltex = {
          filetypes = { "tex", "bib", "markdown", "org", "text" },
          settings = {
